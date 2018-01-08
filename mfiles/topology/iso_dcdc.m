@@ -23,12 +23,12 @@ classdef iso_dcdc
 
   end
   methods
-    function er=checkDmin(D)
+    function er=checkDmin(obj,D)
       if D<0.1
         error('minimum duty cycle <0.1. check input/output range. May not be achievable')
       end
     end
-    function er=checkDmax(D)
+    function er=checkDmax(obj,D)
       if D>0.9
         error('max duty cycle > 0.9. check input/output range. may not be achievable')
       end

@@ -2,6 +2,9 @@ classdef boost < n_iso_dcdc
   properties
   end
   methods
+    function y = D(obj,vin,vout)
+      y=(vout-vin)/vout;
+    end
     function obj=boost(vimax,vimin,vomax,vomin,pomax)
       obj=obj@n_iso_dcdc(vimax,vimin,vomax,vomin);
 

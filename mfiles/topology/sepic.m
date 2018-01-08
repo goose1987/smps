@@ -6,6 +6,10 @@ classdef sepic < n_iso_dcdc
 
   end
   methods
+    function y=D(obj,vin,vout)
+      y=vout/(vin+vout);
+    end
+    
     function obj=sepic(vimax,vimin,vomax,vomin,pomax)
       obj=obj@n_iso_dcdc(vimax,vimin,vomax,vomin);
 

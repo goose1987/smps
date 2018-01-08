@@ -10,6 +10,10 @@ classdef pushpull < iso_dcdc
     %I_Qs2
   end
   methods
+
+    function y = D(obj,vin,vout)
+      y=2.*obj.nps.*vout./vin;
+    end
     function obj=pushpull(vimax,vimin,vomax,vomin,pomax)
 
       %obj.V_Qp1=2*vimax; % voltage stress on primary switch
@@ -19,7 +23,7 @@ classdef pushpull < iso_dcdc
       obj.Dmax=0.4;
       obj.nps=2*obj.Dmax*vimin/vomax; % turns ratio based on minimum duty cycle
       obj.Dmin=vomin/vimax*obj.nps/2; % maximum duty cycle
-      checkDmin(obj.Dmin); % check minimum duty cycle
+      obj.checkDmin(obj.Dmin); % check minimum duty cycle
       %obj.I_Qp1 = obj.Dmax*(pomax/vomin)/obj.nps; % current stress on primary switch
       %obj.I_Qp2 = obj.Dmax*(pomax/vomin)/obj.nps; % current stress on primary switch
       obj.I_Qp = obj.Dmax.*(pomax/vomin)/obj.nps; % current stress on primary switch

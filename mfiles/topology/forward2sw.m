@@ -4,7 +4,9 @@ classdef forward2sw < iso_dcdc
 
   end
   methods
-
+    function y = D(obj,vin,vou)
+      y=obj.nps.*vout./vin;        
+    end
 
     function obj=forward2sw(vimax,vimin,vomax,vomin,pomax)
 
@@ -16,7 +18,7 @@ classdef forward2sw < iso_dcdc
       obj.Dmin= vomin*obj.nps/vimax; % minimum duty cycle
       % check for correctness
       %obj.checkDmin(obj.Dmin);
-      %checkDmin(obj.Dmin)
+      obj.checkDmin(obj.Dmin)
       %{
       %obj.V_Qs1=vimax/obj.nps; % maximum voltage stress on secondary switch 1
       %obj.V_Qs2=vimax/obj.nps; % maximum voltage stress on secondary switch 2

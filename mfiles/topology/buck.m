@@ -3,6 +3,9 @@ classdef buck < n_iso_dcdc
     nleave=1; % number of interleaved
   end
   methods
+    function y=D(obj,vin,vout)
+      y=vout./vin;
+    end
     function obj=buck(vimax,vimin,vomax,vomin,pomax)
       obj=obj@n_iso_dcdc(vimax,vimin,vomax,vomin)
 
