@@ -9,9 +9,9 @@ classdef sepic < n_iso_dcdc
     function y=D(obj,vin,vout)
       y=vout/(vin+vout);
     end
-    
-    function obj=sepic(vimax,vimin,vomax,vomin,pomax)
-      obj=obj@n_iso_dcdc(vimax,vimin,vomax,vomin);
+
+    function obj=sepic(vimax,vimin,vomax,vomin,pomax,fsw)
+      obj=obj@n_iso_dcdc(vimax,vimin,vomax,vomin,pomax,fsw);
 
       obj.Dmax=(vomax/(vimin+vomax)); % maximum duty cycle
       obj.Dmin=(vomin/(vimax+vomin)); % minimum duty cycle

@@ -20,6 +20,7 @@ classdef iso_dcdc
     I_Qs        % current stress on seconary switches
     nsw         % number of switches
     nwinding    % number of windings
+    nL          % number of inductor
 
   end
   methods

@@ -15,11 +15,16 @@ classdef n_iso_dcdc
     Lprim       % primary inductor
     Lprim_esr   % primary inductor ESR
     Cout        % output capacitor
+    Rdrv   = 4;     % R fet driver
+    tdt    = 0;     % dead time (s)
 
   end
 
   methods
-    function obj = n_iso_dcdc(vimax,vimin,vomax,vomin)
+    function PI2R = I2R(obj,current,resistance)
+      PI2R = current.*current.*resistance;
+    end
+    function obj = n_iso_dcdc(vimax,vimin,vomax,vomin,pomax,fsw)
       % check for valid inputs
       if vimax<vimin
         error('minimum input is larger than maximum input')
@@ -33,6 +38,8 @@ classdef n_iso_dcdc
       obj.vimin=vimin;
       obj.vomax=vomax;
       obj.vomin=vomin;
+      obj.pomax=pomax;
+      obj.fsw = fsw;
 
     end
 
