@@ -1,0 +1,78 @@
+* 2 switch forward, synchronouos secondary low side referenced
+
+* primary switching fet
+XQ1 Q1G VIN Q1S EPC2010C
+XQ2 Q2G SWA Q2S EPC2010C
+XQ3 Q3G VIN Q3S EPC2010C
+XQ4 Q4G SWB Q4S EPC2010C
+
+* secondary switching fets
+*XQ5 PHA2 SWC Q5S EPC2010C
+*XQ6 PHA1 SWD Q6S EPC2010C
+DQ5 0 SWC 1N4148
+DQ6 0 SWD 1N4148
+
+* gate drive resistors
+* RGMAIN Q2G VHSDRV 1
+* RGSYNC Q4G VLSDRV 1
+
+
+*E2 Q3G SW VHSDRV 0 1
+*R from main fet source to ground to measure current
+RQ1S Q1S SWA 0
+RQ2S Q2S 0 0
+RQ3S Q3S SWB 0
+RQ4S Q4S 0 0
+RQ5S Q5S 0 0
+RQ6S Q6S 0 0
+* primary inductance dot is on the first node
+L1 L11 SWB {LPRIM}
+* series inductance to commutate current and facilitate ZVS transition
+LLK SWA L11 {LPS}
+* secondary inductance
+L2 SWC SWD {LSEC}
+* mutuall coupling
+K1 L1 L2 0.99
+* output inductor
+L3 SWC OUTPUT {LOUT}
+L4 SWD OUTPUT {LOUT}
+C1 OUTPUT 0 {COUT}
+R1 OUTPUT 0 {RLOAD}
+VPHASE1 PHA1 0 PULSE(0 5 0 10n 10n {TON} 2u)
+VPHASE2 PHA2 0 PULSE(0 5 0.25u 10n 10n {TON} 2u)
+
+V2 VIN 0 {VIN}
+*V2 VIN 0 PULSE(0 {VIN} 1u 10n)
+XU1 DVCC 0 PHA1 Q1G Q1S Q2G PWMinterlock
+XU2 DVCC 0 PHA2 Q3G Q3S Q4G PWMinterlock
+
+V3 DVCC 0 5
+
+.PARAM RLOAD =2
+.PARAM COUT=33e-6
+.PARAM LPRIM=100e-6
+.PARAM LPS=10e-6
+.PARAM LSEC = 100e-6
+.PARAM LOUT = 10e-6
+.PARAM VIN=80
+.PARAM TON= 1e-6
+
+
+* include miscellaneous library for pwm circuit
+.include misc.lib
+* include modified egan library
+.include EPCGaN.lib
+.include diodes.lib
+
+* transient simulation to 200usec, start saving data at 100usec
+.tran 1E-10 1m 800u 1 NOOP
+.measure tran POWER_Q1 AVG {(V(VIN)-V(Q1S))*I(RQ1S)} FROM = 800e-6
+.measure tran POWER_Q2 AVG {V(SWA)*I(RQ2S)} FROM=800e-6
+.measure tran POWER_Q3 AVG {(V(VIN)-V(Q3S))*I(RQ3S)} FROM=800e-6
+.measure tran POWER_Q4 AVG {V(SWB)*I(RQ4S)} FROM=800e-6
+*.measure tran POWER_Q5 AVG {V(SWC)*I(RQ5S)} FROM=800e-6
+*.measure tran POWER_Q6 AVG {V(SWD)*I(RQ6S)} FROM=800e-6
+
+* print result to csv
+.print tran format=csv I(V2) V(SWA) V(SWB)
+.end

@@ -1,0 +1,54 @@
+
+* main switching fet
+XSWMAIN VG1 SW SSOURCE EPC2010C
+XSWSYNC VG2 SSW 0 EPC2010C
+*DOUT 0 SSW D
+*.model D D
+* gate drive resistors
+RGMAIN VG1 VHSDRV 1
+RGSYNC VG2 VLSDRV 1
+
+*R from main fet source to ground to measure current
+RMAIN SSOURCE 0 0
+
+* primary inductance dot is on the first node
+L1 VIN SW {LPRIM}
+* secondary inductance
+L2 SSW VOUT {LSEC}
+* mutuall coupling
+K1 L1 L2 1.0
+C1 VOUT 0 {COUT}
+R1 VOUT 0 {RLOAD}
+V1 N001 0 PULSE(0 5 1u 10n 10n {TON} 2u)
+
+V2 VIN 0 {VIN}
+
+XU1 DVCC 0 N001 VHSDRV 0 VLSDRV PWMinterlock
+
+V3 DVCC 0 5
+
+.PARAM RLOAD =10
+.PARAM COUT=10e-6
+.PARAM LPRIM=10e-6
+.PARAM LSEC = 10e-6
+.PARAM VIN=80
+.PARAM TON= 1e-6
+
+
+* include miscellaneous library for pwm circuit
+.include misc.lib
+* include modified egan library
+.include EPCGaN.lib
+
+* transient simulation to 200usec, start saving data at 100usec
+.tran 1E-10 1m 800u 1
+.measure tran POWER_SYNCFET AVG {V(SSW)*I(L2)} FROM=800e-6
+.measure tran POWER_MAINFET AVG {V(SW)*I(RMAIN)} FROM=800e-6
+*.measure tran POWER_FETS AVG {V(SW)*I(RSYNC)+(V(VDMAIN)-V(SW))*I(RMAIN)} FROM = 800e-6
+*.measure tran VDSMFET MAX {V(VDMAIN)-V(SW)}
+*.measure tran VDSSFET MAX {V(SW)}
+*.measure tran IDMFET MAX {ABS(I(RMAIN))}
+*.measure tran IDSFET MAX {ABS(I(RSYNC))}
+* print result to csv
+.print tran format=csv I(RMAIN) I(L2) I(R1)
+.end

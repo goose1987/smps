@@ -3,7 +3,7 @@ from forward import forward
 # center tap transformer with 4 windings
 # synchronous
 
-class pushpull(forward):
+class fullbridge(forward):
     def __init__(self,vimax,vimin,vomax,vomin,pomax,fsw):
         forward.__init__(self,vimax,vimin,vomax,vomin,pomax,fsw)
 
@@ -15,5 +15,5 @@ class pushpull(forward):
         #checkDmin(obj.Dmin); % check minimum duty cycle
         self.I_Qp = self.Dmax*(pomax/vomin)/self.nps; # current stress on primary switch
         self.V_Qs = 2.*vimax/self.nps; # voltage stress on secondary switches
-        self.nsw = 4
+        self.nsw = 6 # number of switches
         self.nwinding = 4

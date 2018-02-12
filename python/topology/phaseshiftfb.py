@@ -1,9 +1,9 @@
-from forward import forward
+from fullbridge import fullbridge
 
-class forward2sw(forward):
+class phaseshiftfb(fullbridge):
 
     def __init__(self,vimax,vimin,vomax,vomin,pomax,fsw):
-        forward.__init__(self,vimax,vimin,vomax,vomin,pomax,fsw)
+        fullbridge.__init__(self,vimax,vimin,vomax,vomin,pomax,fsw)
         self.V_Qp = vimax # max voltage stress on primary switches
         # for a 2 sw forward, maximum duty cycle is 50% to balance the transformer.
         # for practical implementation and dynamic range in transients, set Dmax to 0.35
@@ -11,7 +11,7 @@ class forward2sw(forward):
         self.nps = vimax*self.Dmax/vomax # turns ratio based on max duty cycle
         self.Dmin = vomin*self.nps/vimax # min duty cycle
 
-        self.nsw = 4 # number of active switch not including diode on reset
+        self.nsw = 6 # number of active switch not including diode on reset
         self.nwinding = 2 # number of winding
         self.V_Qs = vimax/self.nps;
         self.I_Qs = (pomax/vomin)*self.Dmax;

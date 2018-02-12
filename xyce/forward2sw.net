@@ -1,0 +1,72 @@
+* 2 switch forward, synchronouos secondary low side referenced
+
+* primary switching fet
+XQ1 Q1G Q1D Q1S EPC2010C
+XQ2 VHSDRV Q2D Q2S EPC2010C
+
+* secondary switching fets
+XQ3 VHSDRV Q3D Q3S EPC2010C
+XQ4 VLSDRV Q4D Q4S EPC2010C
+* transformer reset diode
+D1 Q2D VIN D
+D2 0 Q1S D
+.model D D
+
+* gate drive resistors
+* RGMAIN Q2G VHSDRV 1
+* RGSYNC Q4G VLSDRV 1
+R111 L21 Q4D 0
+* floating gate driver
+E1 Q1G Q1S VHSDRV 0 1
+*E2 Q3G SW VHSDRV 0 1
+*R from main fet source to ground to measure current
+RQ1D VIN Q1D 0
+RQ2S Q2S 0 0
+RQ3S Q3S 0 0
+RQ4S Q4S 0 0
+
+* primary inductance dot is on the first node
+L1 Q1S Q2D {LPRIM}
+* secondary inductance
+L2 L21 Q3D {LSEC}
+* mutuall coupling
+K1 L1 L2 1.0
+* output inductor
+L3 Q4D OUTPUT {LOUT}
+C1 OUTPUT 0 {COUT}
+R1 OUTPUT 0 {RLOAD}
+V1 N001 0 PULSE(0 5 10u 10n 10n {TON} 2u)
+
+V2 VIN 0 {VIN}
+
+XU1 DVCC 0 N001 VHSDRV 0 VLSDRV PWMinterlock
+
+V3 DVCC 0 5
+
+.PARAM RLOAD =2
+.PARAM COUT=33e-6
+.PARAM LPRIM=10e-6
+.PARAM LSEC = 10e-6
+.PARAM LOUT = 10e-6
+.PARAM VIN=80
+.PARAM TON= 500e-9
+
+
+* include miscellaneous library for pwm circuit
+.include misc.lib
+* include modified egan library
+.include EPCGaN.lib
+
+* transient simulation to 200usec, start saving data at 100usec
+.tran 1E-10 1m 800u 1
+.measure tran POWER_Q4 AVG {V(Q4D)*I(RQ4S)} FROM=800e-6
+.measure tran POWER_Q3 AVG {V(Q3D)*I(RQ3S)} FROM=800e-6
+.measure tran POWER_Q1 AVG {(V(Q1D)-V(Q1S))*I(RQ1D)} FROM = 800e-6
+.measure tran POWER_Q2 AVG {(V(Q2D)-V(Q2S))*I(RQ2S)} FROM = 800e-6
+.measure tran POWER_FETS AVG {V(Q4D)*I(RQ4S)+V(Q3D)*I(RQ3S)+(V(Q1D)-V(Q1S))*I(RQ1D)+(V(Q2D)-V(Q2S))*I(RQ2S)}
+*.measure tran VDSSFET MAX {V(SW)}
+*.measure tran IDMFET MAX {ABS(I(RMAIN))}
+*.measure tran IDSFET MAX {ABS(I(RSYNC))}
+* print result to csv
+.print tran format=csv I(RQ3S) I(RQ4S)
+.end

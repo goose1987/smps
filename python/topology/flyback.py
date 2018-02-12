@@ -1,8 +1,8 @@
-from iso_dcdc import *
+from converter import converter
 
-class flyback(iso_dcdc):
-    def __init__(self,vimax,vimin,vomax,vomin,pomax):
-
+class flyback(converter):
+    def __init__(self,vimax,vimin,vomax,vomin,pomax,fsw):
+        converter.__init__(self,vimax,vimin,vomax,vomin,pomax,fsw)
         self.nsw = 2
         self.nwinding = 2
 
