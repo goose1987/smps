@@ -3,8 +3,8 @@
 XSWMAIN VG1 VDMAIN SW EPC2010C
 XSWSYNC VG2 SW SSOURCE EPC2010C
 * gate drive resistors
-RGMAIN VG1 VHSDRV 1
-RGSYNC VG2 VLSDRV 1
+RGMAIN VG1 VHSDRV 0
+RGSYNC VG2 VLSDRV 0
 * R from vin to drain main fet to measure current
 RMAIN VIN VDMAIN 0
 *R from sync fet source to ground to measure current
@@ -21,11 +21,11 @@ XU1 DVCC 0 N001 VHSDRV SW VLSDRV PWMinterlock
 
 V3 DVCC 0 5
 
-.PARAM RLOAD =2
-.PARAM COUT=100e-6
+.PARAM RLOAD =4.666
+.PARAM COUT=10e-6
 .PARAM LOUT=10e-6
-.PARAM VIN=80
-.PARAM TON= 500e-9
+.PARAM VIN=100
+.PARAM TON= {(32/VIN)*2e-6}
 
 
 * include miscellaneous library for pwm circuit
@@ -34,14 +34,17 @@ V3 DVCC 0 5
 .include EPCGaN.lib
 
 * transient simulation to 200usec, start saving data at 100usec
-.tran 1E-10 1m 800u 1
-.measure tran POWER_SYNCFET AVG {V(SW)*I(RSYNC)} FROM=800e-6
-.measure tran POWER_MAINFET AVG {(V(VDMAIN)-V(SW))*I(RMAIN)} FROM=800e-6
-.measure tran POWER_FETS AVG {V(SW)*I(RSYNC)+(V(VDMAIN)-V(SW))*I(RMAIN)} FROM = 800e-6
-.measure tran VDSMFET MAX {V(VDMAIN)-V(SW)}
-.measure tran VDSSFET MAX {V(SW)}
-.measure tran IDMFET MAX {ABS(I(RMAIN))}
-.measure tran IDSFET MAX {ABS(I(RSYNC))}
+.tran 1E-12 2m 1.8m 1
+.measure tran POWER_MAINFET AVG {(V(VDMAIN)-V(SW))*I(RMAIN)} FROM=1.8e-3
+.measure tran POWER_SYNCFET AVG {V(SW)*I(RSYNC)} FROM=1.8e-3
+.measure tran POWER_FETS AVG {V(SW)*I(RSYNC)+(V(VDMAIN)-V(SW))*I(RMAIN)} FROM = 1.8e-3
+.measure tran VDSMFET MAX {V(VDMAIN)-V(SW)} FROM=1.8e-3
+.measure tran VDSSFET MAX {V(SW)} FROM=1.8e-3
+.measure tran IDMFET AVG {ABS(I(RMAIN))} FROM = 1.8e-3
+.measure tran IDSFET AVG {ABS(I(RSYNC))} FROM = 1.8e-3
+.measure tran IOUT AVG {I(R1)} FROM = 1.8e-3
+.measure tran VOUT AVG {V(VOUT)} FROM = 1.8e-3
+
 * print result to csv
-.print tran format=csv V(SW) V(VG1) V(VG2) I(RSYNC) I(RMAIN)
+.print tran format=csv {(V(VDMAIN)-V(SW))} {I(RMAIN)} V(VG1) V(VG2)
 .end

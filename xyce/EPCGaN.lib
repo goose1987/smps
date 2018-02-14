@@ -144,6 +144,7 @@ C_GS       	gate source  {ags1}  TC=0,0
 * +	ags5*ags7*log(1+exp((v(source,drain)-ags6)/ags7)) )
 
 C_GD      	gate drain  {agd1}  TC=0,0
+C_CGD1      gate drain  1.3e-11 TC=0,0
 *C_CGD1    	gate drain Q=(0.5*ags2*ags4*log(1+exp((v(gate,drain)-ags3)/ags4))+
 *+	        agd2*agd4*log(1+exp((v(gate,drain)-agd3)/agd4))+
 *+           agd5*agd7*log(1+exp((v(gate,drain)-agd6)/agd7))+
@@ -202,6 +203,7 @@ C_GD      	gate drain  {agd1}  TC=0,0
 * +           agd8*agd10*log(1+exp((v(gate,drain)-agd9)/agd10)))
 
 C_SD       	source drain  {asd1}  TC=0,0
+C_CSD1      source drain  145e-12  TC=0,0
 * C_CSD1	source drain Q=(asd2*asd4*log(1+exp((v(source,drain)-asd3)/asd4))+
 * +	asd5*asd7*log(1+exp((v(source,drain)-asd6)/asd7)) )
 

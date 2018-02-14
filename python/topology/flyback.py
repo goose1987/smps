@@ -1,6 +1,7 @@
 from converter import converter
 
 class flyback(converter):
+    name='flyback'
     def __init__(self,vimax,vimin,vomax,vomin,pomax,fsw):
         converter.__init__(self,vimax,vimin,vomax,vomin,pomax,fsw)
         self.nsw = 2
@@ -12,6 +13,8 @@ class flyback(converter):
         self.V_Qp = vimax+vomax*self.nps # voltage stress on primary switch
         self.V_Qs = vomax+vimax/self.nps # voltage stress on secondary switch
 
+        self.Np=1.0;
+        self.Ns=1.0;
         #obj.I_Qs = pomax/vomin; % current stress on secondary side switches
         #obj.Dmin = 0.15;
 

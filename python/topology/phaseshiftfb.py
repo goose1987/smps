@@ -1,19 +1,16 @@
 from fullbridge import fullbridge
 
 class phaseshiftfb(fullbridge):
+    # calculate operating points for switches
+    def ops(self):
+        self.V_Qp = self.vimax # voltage stress on primary
+        self.V_Qs = self.vimax/self.nps  # voltage stress on secondary switches
+        self.Iomax=self.pomax/self.vomin
+        self.Irms_Qp = self.Iomax*math.sqrt(self.Dmax/2.0)/self.nps # current stress on primary switch
+        self.Ippk = self.Iomax/self.nps
+        self.Irms_Qs=self.Iomax*math.sqrt(self.Dmax/2.0) # current stress on secondary synchronous switch
+        return self.V_Qp,self.V_Qs,self.Iomax,self.Irms_Qp,self.Ippk,self.Irms_Qs
 
     def __init__(self,vimax,vimin,vomax,vomin,pomax,fsw):
         fullbridge.__init__(self,vimax,vimin,vomax,vomin,pomax,fsw)
-        self.V_Qp = vimax # max voltage stress on primary switches
-        # for a 2 sw forward, maximum duty cycle is 50% to balance the transformer.
-        # for practical implementation and dynamic range in transients, set Dmax to 0.35
-        self.Dmax = 0.35
-        self.nps = vimax*self.Dmax/vomax # turns ratio based on max duty cycle
-        self.Dmin = vomin*self.nps/vimax # min duty cycle
-
-        self.nsw = 6 # number of active switch not including diode on reset
-        self.nwinding = 2 # number of winding
-        self.V_Qs = vimax/self.nps;
-        self.I_Qs = (pomax/vomin)*self.Dmax;
-        self.I_Qsync = (pomax/vomin)*(1-self.Dmin); # max current n secondary side synchronous
-        self.I_Qp = self.Dmax*(pomax/vomin)/self.nps;
+        self.winding=2

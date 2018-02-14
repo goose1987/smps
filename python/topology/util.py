@@ -32,3 +32,4 @@ def type2(fp0,fp1,fz1,R1):
     return C1,R2,C2
 
 def type2OTA(fp0,fp1,fz1,R1):
+    return 0
