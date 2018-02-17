@@ -19,7 +19,7 @@ class buck(converter):
         Iout = (pout/vout) # output current (A)
         ######### main switch ############
         # main fet conduction loss (W)
-        Qp_conduction = util.I2R(Iout,Qp['rds'])*self.D(vin,vout)
+        Qp_conduction = util.I2R(self.iRmsPri(pout,vout,vin),Qp['rds'])
         # switching loss
         Qp_sw_on=vin*Iout*ton*self.fsw # switch transition
         Qp_Coss =0.5*Qp['Coss']*vin*vin*self.fsw # hard siwtching Coss loss
@@ -27,7 +27,7 @@ class buck(converter):
 
         ######### synchronous switch #######
         # conduction loss
-        Qs_conduction = util.I2R(Iout,Qsync['rds'])*(1.0-self.D(vin,vout))
+        Qs_conduction = util.I2R(self.iRmsSec(pout,vout,vin),Qsync['rds'])
         # dead time loss
         #Qs_Qoss = Qsync['Qoss']*Qsync['Vsd']*self.fsw/2.0 # Qoss
         #Qs_Qrr = Qsync['Qrr']*Qsync['Vsd']*self.fsw # Qrr
@@ -44,27 +44,35 @@ class buck(converter):
         return 1.0/(np.sqrt(L*C)*2*np.pi)
     # return voltagexcurrent stress on semiconductor switches (W)
     def S2(self,vi,vo,pout):
-        self.ops(vi,vo,pout)
-        return self.V_Qp*self.Iout,self.V_Qs*self.Iout
+        V_Qp=self.vpri(vi)
+        V_Qs=self.vsec(vi)
+        Iout=pout/vo
+        return V_Qp*Iout,V_Qs*Iout
         #return self.V_Qp*self.Iomax#*self.nsw # converter stress (W)
     # sum of stress calculated using rms current
     def S(self,vi,vo,pout):
-        self.ops(vi,vo,pout)
-        return self.V_Qp*self.Irms_Qp+self.V_Qs*self.Irms_Qs
+        V_Qp=self.vpri(vi)
+        V_Qs=self.vsec(vi)
+        Irms_Qp=self.iRmsPri(pout,vo,vi)
+        Irms_Qs=self.iRmsSec(pout,vo,vi)
+        return V_Qp*Irms_Qp+V_Qs*Irms_Qs
     # utilization factor
-    def U2(self,vi,vo,pout):
-        Sp,Ss=self.S2(vi,vo,pout)
-        return pout/Sp,pout/Ss
-    def U(self,vin,vout,pout):
-        return pout/self.S(vin,vout,pout)
+    def U2(self,vi,vo):
+        Sp,Ss=self.S2(vi,vo,self.pomax)
+        return self.pomax/Sp,pout/Ss
+    def U(self,vin,vout):
+        return self.pomax/self.S(vin,vout,self.pomax)
+    # max primary switch stand off voltage
+    def vpri(self,vin):
+        return vin
+    # synchronous switch
+    def vsec(self,vin):
+        return vin
+    def iRmsPri(self,pout,vout,vin):
+        return (pout/vout)*np.sqrt(self.D(vin,vout))
+    def iRmsSec(self,pout,vout,vin):
+        return (pout/vout)*np.sqrt(1.0-self.D(vin,vout))
 
-    def ops(self,vin,vout,pout):
-        self.V_Qp=vin # max voltage stress on main switch
-        self.V_Qs=vin # max voltage stress on synchronous switch
-        D=self.D(vin,vout)
-        self.Iout=pout/vout
-        self.Irms_Qp=np.sqrt(D)*(self.Iout) # max current rms through main fet
-        self.Irms_Qs=np.sqrt(1.0-D)*(self.Iout) # max current rms through sync fet
     #I_Qsync  # current stress synchronous switch on secondary side
     def __init__(self,reqs):
         converter.__init__(self,reqs)
@@ -78,3 +86,7 @@ class buck(converter):
         if self.Dmin<0.1:
             print 'warning : low duty cycle, consider using a topology with a transformer'
         self.Dmax=self.vomax/self.vimin # maximmum duty cycle
+        self.V_Qp_max=self.vimax
+        self.V_Qs_max=self.vimax
+        self.I_Qp_max=self.pomax/self.vomin*np.sqrt(self.D(self.vimin,self.vomin))
+        self.I_Qs_max=self.pomax/self.vomin*np.sqrt(1.0-self.D(self.vimax,self.vomin))
